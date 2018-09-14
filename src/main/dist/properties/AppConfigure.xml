@@ -1,0 +1,26 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="manager" class="edu.mcw.rgd.pipelines.pharmgkb.Manager">
+        <property name="version" value="PharmGKB Pipeline, Version 2.4.1 as of Sep 14, 2018" />
+        <property name="dao" ref="dao" />
+        <property name="preProcessor" ref="preProcessor" />
+        <property name="qcProcessor" ref="qcProcessor" />
+        <property name="loadProcessor" ref="loadProcessor" />
+        <property name="staleIdsDeleteThreshold" value="5%" />
+	</bean>
+	
+    <bean id="dao" class="edu.mcw.rgd.pipelines.pharmgkb.Dao">
+    </bean>
+
+    <bean id="preProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.PreProcessor">
+        <property name="genesFile" value="https://api.pharmgkb.org/v1/download/file/data/genes.zip" />
+        <property name="headerLine" value="PharmGKB Accession Id|NCBI Gene ID|HGNC ID|Ensembl Id|Name|Symbol|Alternate Names|Alternate Symbols|Is VIP|Has Variant Annotation|Cross-references|Has CPIC Dosing Guideline|Chromosome|Chromosomal Start - GRCh37.p13|Chromosomal Stop - GRCh37.p13|Chromosomal Start - GRCh38.p7|Chromosomal Stop - GRCh38.p7" />
+    </bean>
+
+    <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.QCProcessor">
+        <property name="qcThreadCount" value="5" />
+    </bean>
+
+    <bean id="loadProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.LoadProcessor">
+    </bean>
+</beans>
