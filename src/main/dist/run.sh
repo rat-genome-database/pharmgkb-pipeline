@@ -12,10 +12,9 @@ fi
 
 # run java app by calling gradle-generated wrapper script
 cd $APPDIR
-DB_OPTS="-Dspring.config=$APPDIR/../properties/default_db.xml"
-LOG4J_OPTS="-Dlog4j.configuration=file://$APPDIR/properties/log4j.properties"
-declare -x "PHARM_GKB_OPTS=$DB_OPTS $LOG4J_OPTS"
-bin/$APPNAME "$@" 2>&1 | tee run.log
+java -Dspring.config=$APPDIR/../properties/default_db.xml \
+    -Dlog4j.configuration=file://$APPDIR/properties/log4j.properties \
+    -jar lib/$APPNAME.jar "$@" | tee run.log 2>&1
 
-grep status $APPDIR/logs/status.log | mailx -s "[$SERVER] PharmGKB pipeline OK!" $EMAIL_LIST
+mailx -s "[$SERVER] PharmGKB pipeline OK!" $EMAIL_LIST < $APPDIR/logs/summary.log
 

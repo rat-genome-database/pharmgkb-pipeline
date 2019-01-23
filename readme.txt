@@ -1,3 +1,6 @@
+ver 2.4.2,  Jan 23, 2019
+  - tuned up summary email
+
 ver 2.4.1,  Sep 14, 2018
   - moved from subversion to github
   

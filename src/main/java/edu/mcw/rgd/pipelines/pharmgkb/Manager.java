@@ -4,10 +4,14 @@ import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.pipelines.PipelineManager;
 import edu.mcw.rgd.process.PipelineLogFlagManager;
 import edu.mcw.rgd.process.PipelineLogger;
+import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author mtutaj
@@ -51,6 +55,10 @@ public class Manager {
         java.util.Date now = new java.util.Date();
 
         log.info(this.getVersion());
+        log.info("   "+dao.getConnectionInfo());
+
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        log.info("   started at "+sdt.format(now));
 
         dbLogger.init(SpeciesType.HUMAN, "download+process", PIPELINE_NAME);
 
@@ -87,7 +95,7 @@ public class Manager {
             dbLogger.getPipelineLog().setSuccess("OK");
             dbLogger.close(true);
 
-            log.info("--SUCCESS--");
+            log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
         }
         catch(Exception e) {
             e.printStackTrace();

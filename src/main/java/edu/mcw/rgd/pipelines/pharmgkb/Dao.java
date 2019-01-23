@@ -16,14 +16,13 @@ import java.util.List;
  */
 public class Dao {
 
-    private final Logger logStatus = Logger.getLogger("status");
     private final Logger logInserted = Logger.getLogger("inserted");
     private final Logger logDeleted = Logger.getLogger("deleted");
 
     private XdbIdDAO xdbIdDAO = new XdbIdDAO();
 
-    public Dao() {
-        logStatus.info(xdbIdDAO.getConnectionInfo());
+    public String getConnectionInfo() {
+        return xdbIdDAO.getConnectionInfo();
     }
 
     /**
