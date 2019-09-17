@@ -1,9 +1,6 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
-import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.pipelines.PipelineManager;
-import edu.mcw.rgd.process.PipelineLogFlagManager;
-import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -27,8 +24,6 @@ public class Manager {
     public static final String PIPELINE_NAME = "PharmGKB";
 
     private final Logger log = Logger.getLogger("status");
-    private PipelineLogger dbLogger = PipelineLogger.getInstance();
-    private PipelineLogFlagManager dbFlagManager = new PipelineLogFlagManager(dbLogger);
     private String version;
     private String staleIdsDeleteThreshold;
 
@@ -52,7 +47,7 @@ public class Manager {
 
     void run() throws Exception {
 
-        java.util.Date now = new java.util.Date();
+        Date now = new Date();
 
         log.info(this.getVersion());
         log.info("   "+dao.getConnectionInfo());
@@ -60,11 +55,7 @@ public class Manager {
         SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         log.info("   started at "+sdt.format(now));
 
-        dbLogger.init(SpeciesType.HUMAN, "download+process", PIPELINE_NAME);
-
         qcProcessor.setDao(dao);
-        qcProcessor.setDbFlagManager(dbFlagManager);
-        qcProcessor.registerDbLogFlags();
 
         loadProcessor.setDao(dao);
 
@@ -83,24 +74,12 @@ public class Manager {
             // dump counter statistics
             manager.dumpCounters(log);
 
-            for( String counter: manager.getSession().getCounters() ) {
-                int count = manager.getSession().getCounterValue(counter);
-                if( count!=0 ) {
-                    dbLogger.log(counter, Integer.toString(count), PipelineLogger.TOTAL);
-                }
-            }
-
             deleteObsoleteXdbIds(now, xdbIdCount);
-
-            dbLogger.getPipelineLog().setSuccess("OK");
-            dbLogger.close(true);
 
             log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
         }
         catch(Exception e) {
             e.printStackTrace();
-            dbLogger.getPipelineLog().setSuccess(e.getMessage());
-            dbLogger.close(false);
 
             // rethrow the exception
             throw e;
@@ -132,7 +111,6 @@ public class Manager {
         else if( xdbIdCountForDelete>0 ) {
             int count = dao.deleteXdbIdsModifiedBefore(PIPELINE_NAME, now);
             log.info("XDBS_DELETED_FROM_RGD: "+count);
-            dbLogger.log("DELETED_FROM_RGD", Integer.toString(count), PipelineLogger.TOTAL);
         }
     }
 

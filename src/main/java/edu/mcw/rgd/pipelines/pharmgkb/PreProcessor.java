@@ -1,9 +1,7 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
-import edu.mcw.rgd.datamodel.PipelineLog;
 import edu.mcw.rgd.pipelines.RecordPreprocessor;
 import edu.mcw.rgd.process.FileDownloader;
-import edu.mcw.rgd.process.PipelineLogger;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -23,7 +21,6 @@ public class PreProcessor extends RecordPreprocessor {
 
     private final Logger log = Logger.getLogger("status");
     private String genesFile;
-    private PipelineLogger dbLogger = PipelineLogger.getInstance();
     private String headerLine;
 
     /** genes.tsv format:<pre>
@@ -58,8 +55,6 @@ public class PreProcessor extends RecordPreprocessor {
                 parseFile(zipFile.getInputStream(zipEntry));
             }
         }
-
-        dbLogger.log(null, Integer.toString(getSession().getRecordsProcessed(0)), PipelineLog.LOGPROP_RECCOUNT);
     }
 
     private void parseFile(InputStream ios) throws Exception {

@@ -7,10 +7,8 @@ import java.util.List;
 import nu.xom.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: Apr 29, 2011
- * Time: 8:45:07 AM
+ * @author mtutaj
+ * @since Apr 29, 2011
  * custom data, both read from incoming data and from rgd database
  */
 public class PharmGKBRecord extends PipelineRecord {

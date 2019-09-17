@@ -1,3 +1,6 @@
+Sep 17, 2019
+  - incoming records logged into file instead of database, in xml format
+
 ver 2.4.2,  Jan 23, 2019
   - tuned up summary email
 
