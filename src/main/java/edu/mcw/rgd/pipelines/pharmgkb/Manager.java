@@ -1,6 +1,6 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
-import edu.mcw.rgd.pipelines.PipelineManager;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -9,6 +9,7 @@ import org.springframework.core.io.FileSystemResource;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author mtutaj
@@ -18,7 +19,6 @@ public class Manager {
 
     private PreProcessor preProcessor;
     private QCProcessor qcProcessor;
-    private LoadProcessor loadProcessor;
     private Dao dao;
 
     public static final String PIPELINE_NAME = "PharmGKB";
@@ -42,7 +42,13 @@ public class Manager {
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new FileSystemResource("properties/AppConfigure.xml"));
         Manager manager = (Manager) (bf.getBean("manager"));
-        manager.run();
+
+        try {
+            manager.run();
+        } catch(Exception e) {
+            Utils.printStackTrace(e, manager.log);
+            throw e;
+        }
     }
 
     void run() throws Exception {
@@ -57,33 +63,29 @@ public class Manager {
 
         qcProcessor.setDao(dao);
 
-        loadProcessor.setDao(dao);
-
         // load number of xdb ids loaded so far by PharmGKB pipeline
         int xdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, now);
         log.info("count of PharmGKB IDs in the database: "+xdbIdCount);
 
-        PipelineManager manager = new PipelineManager();
-        manager.addPipelineWorkgroup(preProcessor, "PP", 1, 1000);
-        manager.addPipelineWorkgroup(qcProcessor, "QC", qcProcessor.getQcThreadCount(), 1000);
-        manager.addPipelineWorkgroup(loadProcessor, "DL", 1, 1000);
+        CounterPool counters = new CounterPool();
 
-        try {
-            manager.run();
+        List<PharmGKBRecord> incomingRecords = preProcessor.process();
 
-            // dump counter statistics
-            manager.dumpCounters(log);
+        incomingRecords.parallelStream().forEach( rec -> {
 
-            deleteObsoleteXdbIds(now, xdbIdCount);
+            try {
+                qcProcessor.process(rec, counters);
+            } catch(Exception e) {
+                Utils.printStackTrace(e, log);
+                throw new RuntimeException(e);
+            }
+        });
 
-            log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
+        log.info(counters.dumpAlphabetically());
 
-            // rethrow the exception
-            throw e;
-        }
+        deleteObsoleteXdbIds(now, xdbIdCount);
+
+        log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
     }
 
     void deleteObsoleteXdbIds(java.util.Date now, int xdbIdCount) throws Exception {
@@ -128,14 +130,6 @@ public class Manager {
 
     public void setQcProcessor(QCProcessor qcProcessor) {
         this.qcProcessor = qcProcessor;
-    }
-
-    public LoadProcessor getLoadProcessor() {
-        return loadProcessor;
-    }
-
-    public void setLoadProcessor(LoadProcessor loadProcessor) {
-        this.loadProcessor = loadProcessor;
     }
 
     public Dao getDao() {

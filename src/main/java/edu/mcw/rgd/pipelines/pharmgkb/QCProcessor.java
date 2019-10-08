@@ -1,8 +1,7 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.datamodel.XdbId;
-import edu.mcw.rgd.pipelines.PipelineRecord;
-import edu.mcw.rgd.pipelines.RecordProcessor;
+import edu.mcw.rgd.process.CounterPool;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -18,17 +17,15 @@ import java.util.List;
  * @author mtutaj
  * @since Apr 28, 2011
  */
-public class QCProcessor extends RecordProcessor {
+public class QCProcessor {
 
     private Dao dao;
-    private int qcThreadCount;
-
+    private CounterPool counters;
     private static final Logger log = Logger.getLogger("incoming");
 
-    @Override
-    public void process(PipelineRecord pipelineRecord) throws Exception {
+    public void process(PharmGKBRecord rec, CounterPool counters) throws Exception {
 
-        PharmGKBRecord rec = (PharmGKBRecord) pipelineRecord;
+        this.counters = counters;
 
         runMatcher(rec);
 
@@ -39,6 +36,20 @@ public class QCProcessor extends RecordProcessor {
         // generate XML record for this gene and write it and its QC flags into a file
         String xml = rec.toXml();
         log.debug("\n"+formatXml(xml));
+
+        if( rec.getXdbIdForUpdate()!=null ) {
+            XdbId xdbId = rec.getXdbIdForUpdate();
+            xdbId.setModificationDate(new java.util.Date());
+            getDao().updateByKey(xdbId);
+        }
+
+        if( rec.getXdbIdForInsert()!=null ) {
+
+            XdbId xdbId = rec.getXdbIdForInsert();
+            getDao().insertXdb(xdbId);
+        }
+
+        counters.increment("PROCESSED");
     }
 
     public String formatXml(String xml) throws Exception {
@@ -67,19 +78,16 @@ public class QCProcessor extends RecordProcessor {
         rec.setGenesInRgdMatchingByEnsemblId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, rec.getEnsemblId()));
 
         if( rec.getGenesInRgdMatchingByHgncId().size()==1 ) {
-            rec.setFlag("MATCH_BY_HGNC_ID");
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByHgncId().get(0).getRgdId());
-            getSession().incrementCounter("MATCH_BY_HGNC_ID", 1);
+            counters.increment("MATCH_BY_HGNC_ID");
         }
         else if( rec.getGenesInRgdMatchingByGeneId().size()==1 ) {
-            rec.setFlag("MATCH_BY_GENE_ID");
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByGeneId().get(0).getRgdId());
-            getSession().incrementCounter("MATCH_BY_GENE_ID", 1);
+            counters.increment("MATCH_BY_GENE_ID");
         }
         else if( rec.getGenesInRgdMatchingByEnsemblId().size()==1 ) {
-            rec.setFlag("MATCH_BY_ENSEMBL_ID");
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByEnsemblId().get(0).getRgdId());
-            getSession().incrementCounter("MATCH_BY_ENSEMBL_ID", 1);
+            counters.increment("MATCH_BY_ENSEMBL_ID");
         }
         else {
             // there is no single match by either HGNC, NCBI Gene, or Ensembl id
@@ -97,13 +105,11 @@ public class QCProcessor extends RecordProcessor {
 
             if( !multi.equals("MULTIMATCH_BY") ) {
                 // there are multiple matches
-                rec.setFlag("MULTI_MATCH");
-                getSession().incrementCounter(multi, 1);
+                counters.increment(multi);
             }
             else {
                 // there are no matches at all
-                rec.setFlag("NO_MATCH");
-                getSession().incrementCounter("NO_MATCH_BY_HGNC_NCBIGENE_ENSEMBL", 1);
+                counters.increment("NO_MATCH_BY_HGNC_NCBIGENE_ENSEMBL");
             }
 
             // no more QC if multi matches or no matches at all
@@ -126,8 +132,7 @@ public class QCProcessor extends RecordProcessor {
             int index = pharmGkbIdsInRgd.indexOf(incomingPharmGkb);
             rec.setXdbIdForUpdate(pharmGkbIdsInRgd.get(index));
 
-            rec.setFlag("ALREADY_IN_RGD");
-            getSession().incrementCounter("XDBS_ALREADY_IN_RGD", 1);
+            counters.increment("XDBS_ALREADY_IN_RGD");
         }
         else {
 
@@ -138,8 +143,7 @@ public class QCProcessor extends RecordProcessor {
 
             rec.setXdbIdForInsert(incomingPharmGkb);
 
-            rec.setFlag("INSERT_INTO_RGD");
-            getSession().incrementCounter("XDBS_INSERTED_INTO_RGD", 1);
+            counters.increment("XDBS_INSERTED_INTO_RGD");
         }
     }
     public Dao getDao() {
@@ -148,13 +152,5 @@ public class QCProcessor extends RecordProcessor {
 
     public void setDao(Dao dao) {
         this.dao = dao;
-    }
-
-    public void setQcThreadCount(int qcThreadCount) {
-        this.qcThreadCount = qcThreadCount;
-    }
-
-    public int getQcThreadCount() {
-        return qcThreadCount;
     }
 }

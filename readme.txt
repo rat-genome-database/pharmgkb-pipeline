@@ -1,3 +1,6 @@
+Oct 8, 2019
+  - code simplified by switch to java parallel streams
+
 Sep 17, 2019
   - incoming records logged into file instead of database, in xml format
 

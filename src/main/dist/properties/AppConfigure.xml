@@ -1,11 +1,10 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="manager" class="edu.mcw.rgd.pipelines.pharmgkb.Manager">
-        <property name="version" value="PharmGKB Pipeline,  build Sep 17, 2019" />
+        <property name="version" value="PharmGKB Pipeline  -- build Oct 8, 2019" />
         <property name="dao" ref="dao" />
         <property name="preProcessor" ref="preProcessor" />
         <property name="qcProcessor" ref="qcProcessor" />
-        <property name="loadProcessor" ref="loadProcessor" />
         <property name="staleIdsDeleteThreshold" value="5%" />
 	</bean>
 	
@@ -18,9 +17,5 @@
     </bean>
 
     <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.QCProcessor">
-        <property name="qcThreadCount" value="5" />
-    </bean>
-
-    <bean id="loadProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.LoadProcessor">
     </bean>
 </beans>

@@ -2,7 +2,6 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.XdbId;
-import edu.mcw.rgd.pipelines.PipelineRecord;
 import java.util.List;
 import nu.xom.*;
 
@@ -11,9 +10,7 @@ import nu.xom.*;
  * @since Apr 29, 2011
  * custom data, both read from incoming data and from rgd database
  */
-public class PharmGKBRecord extends PipelineRecord {
-
-    private static int _recno = 0;
+public class PharmGKBRecord {
 
     // incoming data
     private String pharmGkbAccId;
@@ -38,10 +35,6 @@ public class PharmGKBRecord extends PipelineRecord {
     // LOADING
     private XdbId xdbIdForUpdate; // MODIFICATION_DATE is to be updated
     private XdbId xdbIdForInsert; // to be inserted into RGD
-
-    public PharmGKBRecord() {
-        setRecNo(++_recno);
-    }
 
     public String getPharmGkbAccId() {
         return pharmGkbAccId;
@@ -189,8 +182,6 @@ public class PharmGKBRecord extends PipelineRecord {
         // incoming data
         Element pharmGKB = new Element("PharmGKB");
         root.appendChild(pharmGKB);
-
-        pharmGKB.addAttribute(new Attribute("recno", Integer.toString(this.getRecNo())));
 
         Element el = new Element("accId");
         el.appendChild(this.getPharmGkbAccId());

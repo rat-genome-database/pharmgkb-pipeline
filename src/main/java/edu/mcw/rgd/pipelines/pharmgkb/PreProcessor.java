@@ -1,13 +1,14 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
-import edu.mcw.rgd.pipelines.RecordPreprocessor;
 import edu.mcw.rgd.process.FileDownloader;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -17,7 +18,7 @@ import java.util.zip.ZipFile;
  *
  * download genes file from PharmGKB website, process it and break into lines
  */
-public class PreProcessor extends RecordPreprocessor {
+public class PreProcessor {
 
     private final Logger log = Logger.getLogger("status");
     private String genesFile;
@@ -34,8 +35,9 @@ public class PreProcessor extends RecordPreprocessor {
      * As of March 2016 there is a new column 'HGNC ID' inserted between 'NCBI Gene ID' and 'Ensembl Id'
      * @throws Exception
      */
-    @Override
-    public void process() throws Exception {
+    public List<PharmGKBRecord> process() throws Exception {
+
+        List<PharmGKBRecord> result = new ArrayList<>();
 
         // download the file to a local folder
         log.info("  downloading file "+genesFile);
@@ -52,14 +54,17 @@ public class PreProcessor extends RecordPreprocessor {
                     continue;
                 }
 
-                parseFile(zipFile.getInputStream(zipEntry));
+                result.addAll(parseFile(zipFile.getInputStream(zipEntry)));
             }
         }
+
+        return result;
     }
 
-    private void parseFile(InputStream ios) throws Exception {
+    private List<PharmGKBRecord> parseFile(InputStream ios) throws Exception {
 
         // this is a text file, tab separated
+        List<PharmGKBRecord> result = new ArrayList<>();
 
         // validate the first line: header line
         BufferedReader reader = new BufferedReader(new InputStreamReader(ios));
@@ -91,11 +96,13 @@ public class PreProcessor extends RecordPreprocessor {
             rec.setHasVariantAnnotation(words[9]);
             rec.setCrossReferences(words[10]);
 
-            getSession().putRecordToFirstQueue(rec);
+            result.add(rec);
         }
 
         // cleanup
         reader.close();
+
+        return result;
     }
 
     /**
