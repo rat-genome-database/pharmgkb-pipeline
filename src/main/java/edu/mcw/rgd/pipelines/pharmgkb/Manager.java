@@ -7,6 +7,8 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -64,8 +66,9 @@ public class Manager {
         qcProcessor.setDao(dao);
 
         // load number of xdb ids loaded so far by PharmGKB pipeline
-        int xdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, now);
-        log.info("count of PharmGKB IDs in the database: "+xdbIdCount);
+        Date dt = Utils.addHoursToDate(now, 1);
+        int oldXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, dt);
+        log.debug("count of PharmGKB IDs in the database: "+oldXdbIdCount);
 
         CounterPool counters = new CounterPool();
 
@@ -81,17 +84,28 @@ public class Manager {
             }
         });
 
+        deleteObsoleteXdbIds(now, oldXdbIdCount, counters);
+
         log.info(counters.dumpAlphabetically());
 
-        deleteObsoleteXdbIds(now, xdbIdCount);
+        dt = Utils.addHoursToDate(new Date(), 1);
+        int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, dt);
+        int diffCount = newXdbIdCount - oldXdbIdCount;
+        NumberFormat plusMinusNF = new DecimalFormat(" +###,###,###; -###,###,###");
+        String diffCountStr = diffCount!=0 ? "     difference: "+ plusMinusNF.format(diffCount) : "     no changes";
+        log.info("TOTAL PharmGKB ID count: "+Utils.formatThousands(newXdbIdCount)+diffCountStr);
+        log.info("");
 
         log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
     }
 
-    void deleteObsoleteXdbIds(java.util.Date now, int xdbIdCount) throws Exception {
+    void deleteObsoleteXdbIds(java.util.Date now, int xdbIdCount, CounterPool counters) throws Exception {
 
-        int xdbIdCountForDelete = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, now);
-        log.info("count of PharmGKB IDs to be deleted: "+xdbIdCountForDelete);
+        // due to differences between app server time and db server time, it is safer to delete data
+        // that have been modified more than 1 hour ago
+        Date cutoffDate = Utils.addHoursToDate(now, -1);
+        int xdbIdCountForDelete = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, cutoffDate);
+        log.debug("count of PharmGKB IDs to be deleted: "+xdbIdCountForDelete);
 
         // if count of rows to be deleted is greater than 5% of existing rows, that means trouble
         //
@@ -105,14 +119,15 @@ public class Manager {
             }
         }
         int deleteThreshold = (deleteThresholdInPercent*xdbIdCount) / 100;
-        log.info("   stale xdb ids delete threshold is "+deleteThreshold + " ("+getStaleIdsDeleteThreshold()+")");
+        log.debug("   stale xdb ids delete threshold is "+deleteThreshold + " ("+getStaleIdsDeleteThreshold()+")");
 
         if( xdbIdCountForDelete > deleteThreshold ) {
-            log.warn("***** count of PharmGKB IDs to be deleted is more than "+getStaleIdsDeleteThreshold()+" of PharmGKB ids -- REVIEW needed");
+            log.info("***** stale xdb ids delete threshold is "+deleteThreshold + " ("+getStaleIdsDeleteThreshold()+")");
+            log.warn("***** count of PharmGKB IDs to be deleted ("+xdbIdCountForDelete+") is more than "+getStaleIdsDeleteThreshold()+" threshold -- REVIEW needed");
         }
         else if( xdbIdCountForDelete>0 ) {
             int count = dao.deleteXdbIdsModifiedBefore(PIPELINE_NAME, now);
-            log.info("XDBS_DELETED_FROM_RGD: "+count);
+            counters.add("XDBS_DELETED_FROM_RGD", count);
         }
     }
 

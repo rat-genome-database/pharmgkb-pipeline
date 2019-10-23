@@ -1,3 +1,6 @@
+Oct 23, 2019
+  - fixed potential problem with deleting obsolete ids
+
 Oct 8, 2019
   - code simplified by switch to java parallel streams
 

@@ -49,7 +49,7 @@ public class QCProcessor {
             getDao().insertXdb(xdbId);
         }
 
-        counters.increment("PROCESSED");
+        counters.increment("INCOMING_ROWS_PROCESSED");
     }
 
     public String formatXml(String xml) throws Exception {
@@ -109,7 +109,7 @@ public class QCProcessor {
             }
             else {
                 // there are no matches at all
-                counters.increment("NO_MATCH_BY_HGNC_NCBIGENE_ENSEMBL");
+                counters.increment("MATCH_NOT_BY_HGNC_NCBIGENE_ENSEMBL");
             }
 
             // no more QC if multi matches or no matches at all
@@ -137,9 +137,9 @@ public class QCProcessor {
         else {
 
             // setup the remaining fields
-            incomingPharmGkb.setLinkText(incomingPharmGkb.getAccId());
-            incomingPharmGkb.setCreationDate(new java.util.Date());
-            incomingPharmGkb.setModificationDate(new java.util.Date());
+            java.util.Date dt = new java.util.Date();
+            incomingPharmGkb.setCreationDate(dt);
+            incomingPharmGkb.setModificationDate(dt);
 
             rec.setXdbIdForInsert(incomingPharmGkb);
 
