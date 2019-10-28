@@ -1,3 +1,6 @@
+Oct 28, 2019
+  - moved hardcoded value 'pipelineName' to properties file
+
 Oct 23, 2019
   - fixed potential problem with deleting obsolete ids
 

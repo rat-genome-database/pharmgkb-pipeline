@@ -23,11 +23,10 @@ public class Manager {
     private QCProcessor qcProcessor;
     private Dao dao;
 
-    public static final String PIPELINE_NAME = "PharmGKB";
-
     private final Logger log = Logger.getLogger("status");
     private String version;
     private String staleIdsDeleteThreshold;
+    private String pipelineName;
 
     /**
      * run the pipeline to import PharmGKB Ids for human genes
@@ -67,7 +66,7 @@ public class Manager {
 
         // load number of xdb ids loaded so far by PharmGKB pipeline
         Date dt = Utils.addHoursToDate(now, 1);
-        int oldXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, dt);
+        int oldXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), dt);
         log.debug("count of PharmGKB IDs in the database: "+oldXdbIdCount);
 
         CounterPool counters = new CounterPool();
@@ -89,7 +88,7 @@ public class Manager {
         log.info(counters.dumpAlphabetically());
 
         dt = Utils.addHoursToDate(new Date(), 1);
-        int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, dt);
+        int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), dt);
         int diffCount = newXdbIdCount - oldXdbIdCount;
         NumberFormat plusMinusNF = new DecimalFormat(" +###,###,###; -###,###,###");
         String diffCountStr = diffCount!=0 ? "     difference: "+ plusMinusNF.format(diffCount) : "     no changes";
@@ -104,7 +103,7 @@ public class Manager {
         // due to differences between app server time and db server time, it is safer to delete data
         // that have been modified more than 1 hour ago
         Date cutoffDate = Utils.addHoursToDate(now, -1);
-        int xdbIdCountForDelete = dao.getCountOfXdbIdsModifiedBefore(PIPELINE_NAME, cutoffDate);
+        int xdbIdCountForDelete = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), cutoffDate);
         log.debug("count of PharmGKB IDs to be deleted: "+xdbIdCountForDelete);
 
         // if count of rows to be deleted is greater than 5% of existing rows, that means trouble
@@ -126,7 +125,7 @@ public class Manager {
             log.warn("***** count of PharmGKB IDs to be deleted ("+xdbIdCountForDelete+") is more than "+getStaleIdsDeleteThreshold()+" threshold -- REVIEW needed");
         }
         else if( xdbIdCountForDelete>0 ) {
-            int count = dao.deleteXdbIdsModifiedBefore(PIPELINE_NAME, now);
+            int count = dao.deleteXdbIdsModifiedBefore(getPipelineName(), now);
             counters.add("XDBS_DELETED_FROM_RGD", count);
         }
     }
@@ -170,5 +169,13 @@ public class Manager {
 
     public String getStaleIdsDeleteThreshold() {
         return staleIdsDeleteThreshold;
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = pipelineName;
+    }
+
+    public String getPipelineName() {
+        return pipelineName;
     }
 }
