@@ -1,3 +1,6 @@
+May 10, 2020
+  - updated jar dependencies
+
 Oct 28, 2019
   - moved hardcoded value 'pipelineName' to properties file
 
