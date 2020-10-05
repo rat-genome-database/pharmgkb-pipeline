@@ -1,3 +1,6 @@
+Oct 05, 2020
+  updated jar dependencies
+
 May 10, 2020
   - updated jar dependencies
 
