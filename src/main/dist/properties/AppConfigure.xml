@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="manager" class="edu.mcw.rgd.pipelines.pharmgkb.Manager">
-        <property name="version" value="PharmGKB Pipeline  -- build Oct 05, 2020" />
+        <property name="version" value="PharmGKB Pipeline  -- build Mar 25, 2021" />
         <property name="dao" ref="dao" />
         <property name="preProcessor" ref="preProcessor" />
         <property name="qcProcessor" ref="qcProcessor" />
@@ -14,7 +14,7 @@
 
     <bean id="preProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.PreProcessor">
         <property name="genesFile" value="https://api.pharmgkb.org/v1/download/file/data/genes.zip" />
-        <property name="headerLine" value="PharmGKB Accession Id|NCBI Gene ID|HGNC ID|Ensembl Id|Name|Symbol|Alternate Names|Alternate Symbols|Is VIP|Has Variant Annotation|Cross-references|Has CPIC Dosing Guideline|Chromosome|Chromosomal Start - GRCh37.p13|Chromosomal Stop - GRCh37.p13|Chromosomal Start - GRCh38.p7|Chromosomal Stop - GRCh38.p7" />
+        <property name="headerLine" value="PharmGKB Accession Id|NCBI Gene ID|HGNC ID|Ensembl Id|Name|Symbol|Alternate Names|Alternate Symbols|Is VIP|Has Variant Annotation|Cross-references|Has CPIC Dosing Guideline|Chromosome|Chromosomal Start - GRCh37|Chromosomal Stop - GRCh37|Chromosomal Start - GRCh38|Chromosomal Stop - GRCh38" />
     </bean>
 
     <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.pharmgkb.QCProcessor">
