@@ -3,7 +3,8 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 import edu.mcw.rgd.dao.impl.XdbIdDAO;
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.XdbId;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +17,8 @@ import java.util.List;
  */
 public class Dao {
 
-    private final Logger logInserted = Logger.getLogger("inserted");
-    private final Logger logDeleted = Logger.getLogger("deleted");
+    private final Logger logInserted = LogManager.getLogger("inserted");
+    private final Logger logDeleted = LogManager.getLogger("deleted");
 
     private XdbIdDAO xdbIdDAO = new XdbIdDAO();
 

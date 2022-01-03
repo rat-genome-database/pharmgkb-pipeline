@@ -1,7 +1,8 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.process.FileDownloader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -20,7 +21,7 @@ import java.util.zip.ZipFile;
  */
 public class PreProcessor {
 
-    private final Logger log = Logger.getLogger("status");
+    private final Logger log = LogManager.getLogger("status");
     private String genesFile;
     private String headerLine;
 

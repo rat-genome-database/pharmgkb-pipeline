@@ -2,7 +2,8 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.CounterPool;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -21,7 +22,7 @@ public class QCProcessor {
 
     private Dao dao;
     private CounterPool counters;
-    private static final Logger log = Logger.getLogger("incoming");
+    private static final Logger log = LogManager.getLogger("incoming");
 
     public void process(PharmGKBRecord rec, CounterPool counters) throws Exception {
 

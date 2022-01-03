@@ -2,7 +2,8 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -23,7 +24,7 @@ public class Manager {
     private QCProcessor qcProcessor;
     private Dao dao;
 
-    private final Logger log = Logger.getLogger("status");
+    private final Logger log = LogManager.getLogger("status");
     private String version;
     private String staleIdsDeleteThreshold;
     private String pipelineName;
