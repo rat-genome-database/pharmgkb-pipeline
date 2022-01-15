@@ -1,13 +1,13 @@
 # download genes.zip file from PharmGKB website and load PharmGKB ids into table RGD_ACC_XDB
 #
 . /etc/profile
-APPNAME=PharmGKB
+APPNAME="pharmgkb-pipeline"
 APPDIR=/home/rgddata/pipelines/$APPNAME
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then
-  EMAIL_LIST=rgd.developers@mcw.edu,jrsmith@mcw.edu
+  EMAIL_LIST=rgd.devopss@mcw.edu,jrsmith@mcw.edu
 fi
 
 # run java app by calling gradle-generated wrapper script
