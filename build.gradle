@@ -22,14 +22,14 @@ repositories {
 }
 
 dependencies {
-    compile 'org.apache.commons:commons-dbcp2:2.8.0'
-    compile 'commons-net:commons-net:3.7'
+    compile 'org.apache.commons:commons-dbcp2:2.9.0'
+    compile 'commons-net:commons-net:3.7.1'
     compile 'org.apache.httpcomponents:httpclient:4.5.13'
     compile 'org.apache.logging.log4j:log4j-api:2.17.1'
     compile 'org.apache.logging.log4j:log4j-core:2.17.1'
-    compile 'com.oracle.database.jdbc:ojdbc8:19.6.0.0'
-    compile 'org.springframework:spring-beans:5.2.3.RELEASE'
-    compile 'org.springframework:spring-jdbc:5.2.3.RELEASE'
+    compile 'com.oracle.database.jdbc:ojdbc8:19.7.0.0'
+    compile 'org.springframework:spring-beans:5.2.4.RELEASE'
+    compile 'org.springframework:spring-jdbc:5.2.4.RELEASE'
     compile 'com.io7m.xom:xom:1.2.10'
 
     compile fileTree(dir: 'lib', include: '*.jar')
