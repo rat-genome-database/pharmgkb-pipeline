@@ -7,7 +7,7 @@
         </Console>
 
         <RollingFile name="status" append="true" fileName="logs/status.log" filePattern="logs/status.log.%d{yyyy-MM}">
-            <PatternLayout pattern="%d %p [%c] - %m%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
@@ -18,19 +18,19 @@
         </File>
 
         <RollingFile name="inserted" append="true" fileName="logs/inserted.log" filePattern="logs/inserted.log.%d{yyyy-MM}">
-            <PatternLayout pattern="[%d] - %m%n"/>
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
         </RollingFile>
         <RollingFile name="deleted" append="true" fileName="logs/deleted.log" filePattern="logs/deleted.log.%d{yyyy-MM}">
-            <PatternLayout pattern="[%d] - %m%n"/>
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
         </RollingFile>
         <RollingFile name="incoming" append="true" fileName="logs/incoming.log" filePattern="logs/incoming.log.%d{yyyy-MM}">
-            <PatternLayout pattern="[%d] - %m%n"/>
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
