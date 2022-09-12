@@ -7,7 +7,7 @@ SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then
-  EMAIL_LIST=rgd.devopss@mcw.edu,jrsmith@mcw.edu
+  EMAIL_LIST=rgd.devops@mcw.edu,jrsmith@mcw.edu
 fi
 
 # run java app by calling gradle-generated wrapper script
