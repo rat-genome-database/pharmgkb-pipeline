@@ -54,6 +54,25 @@ public class PharmGKBRecord {
             this.hgncId = hgncId;
     }
 
+    // remove gene descriptions to significantly reduce json footprint of this object
+    public void removeGeneDescriptions() {
+        removeGeneDescriptions(genesInRgdMatchingByHgncId);
+        removeGeneDescriptions(genesInRgdMatchingByGeneId);
+        removeGeneDescriptions(genesInRgdMatchingByEnsemblId);
+    }
+
+    void removeGeneDescriptions( List<Gene> list ) {
+        if( list==null ) {
+            return;
+        }
+        for( Gene g: list ) {
+            g.setDescription(null);
+            g.setAgrDescription(null);
+            g.setMergedDescription(null);
+            g.setNotes(null);
+        }
+    }
+
     public String getGeneId() {
         return geneId;
     }

@@ -31,7 +31,8 @@ public class QCProcessor {
             checkIfAlreadyLoaded(rec);
         }
 
-        // generate XML record for this gene and write it and its QC flags into a file
+        // generate JSON record for this gene and write it and its QC flags into a file
+        rec.removeGeneDescriptions();
         log.debug("\n"+formatAsJson(rec));
 
         if( rec.getXdbIdForUpdate()!=null ) {
