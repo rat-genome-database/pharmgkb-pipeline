@@ -1,3 +1,7 @@
+Jan 10, 2023
+  updated build.gradle to be gradle 6.x + compatible
+  incoming data now is dumped in json format instead of xml
+
 Sep 12, 2022
   fixed logging of dates
 

@@ -1,17 +1,14 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.CounterPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Node;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -35,8 +32,7 @@ public class QCProcessor {
         }
 
         // generate XML record for this gene and write it and its QC flags into a file
-        String xml = rec.toXml();
-        log.debug("\n"+formatXml(xml));
+        log.debug("\n"+formatAsJson(rec));
 
         if( rec.getXdbIdForUpdate()!=null ) {
             XdbId xdbId = rec.getXdbIdForUpdate();
@@ -53,23 +49,22 @@ public class QCProcessor {
         counters.increment("INCOMING_ROWS_PROCESSED");
     }
 
-    public String formatXml(String xml) throws Exception {
+    public String formatAsJson(PharmGKBRecord rec) throws Exception {
+        // setup a JSON object array to collect all DafAnnotation objects
+        ObjectMapper json = new ObjectMapper();
+        // do not export fields with NULL values
+        json.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        final InputSource src = new InputSource(new StringReader(xml));
-        final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
-        final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
+        // dump records to a file in JSON format
+        ByteArrayOutputStream byteBuf = new ByteArrayOutputStream();
+        OutputStreamWriter out = new OutputStreamWriter(byteBuf, "UTF8");
+        BufferedWriter jsonWriter = new BufferedWriter(out);
 
-        //May need this: System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+        jsonWriter.write(json.writerWithDefaultPrettyPrinter().writeValueAsString(rec));
 
+        jsonWriter.close();
 
-        final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
-        final LSSerializer writer = impl.createLSSerializer();
-
-        writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE); // Set this to true if the output needs to be beautified.
-        writer.getDomConfig().setParameter("xml-declaration", keepDeclaration); // Set this to true if the declaration is needed to be outputted.
-
-        return writer.writeToString(document);
+        return byteBuf.toString();
     }
 
     private void runMatcher(PharmGKBRecord rec) throws Exception {

@@ -3,7 +3,6 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.XdbId;
 import java.util.List;
-import nu.xom.*;
 
 /**
  * @author mtutaj
@@ -173,97 +172,5 @@ public class PharmGKBRecord {
 
     public void setXdbIdForInsert(XdbId xdbIdForInsert) {
         this.xdbIdForInsert = xdbIdForInsert;
-    }
-
-    public String toXml() {
-
-        Element root = new Element("rec");
-
-        // incoming data
-        Element pharmGKB = new Element("PharmGKB");
-        root.appendChild(pharmGKB);
-
-        Element el = new Element("accId");
-        el.appendChild(this.getPharmGkbAccId());
-        pharmGKB.appendChild(el);
-
-        el = new Element("hgncId");
-        el.appendChild(this.getHgncId());
-        pharmGKB.appendChild(el);
-
-        el = new Element("geneId");
-        el.appendChild(this.getGeneId());
-        pharmGKB.appendChild(el);
-
-        el = new Element("ensemblId");
-        el.appendChild(this.getEnsemblId());
-        pharmGKB.appendChild(el);
-
-        el = new Element("crossReferences");
-        el.appendChild(this.getCrossReferences());
-        pharmGKB.appendChild(el);
-
-        el = new Element("geneName");
-        el.appendChild(this.getGeneName());
-        pharmGKB.appendChild(el);
-
-        el = new Element("geneSymbol");
-        el.appendChild(this.getGeneSymbol());
-        pharmGKB.appendChild(el);
-
-        el = new Element("altGeneNames");
-        el.appendChild(this.getAltGeneNames());
-        pharmGKB.appendChild(el);
-
-        el = new Element("altGeneSymbols");
-        el.appendChild(this.getAltGeneSymbols());
-        pharmGKB.appendChild(el);
-
-        el = new Element("props");
-        el.addAttribute(new Attribute("isVIP", this.getVIP()));
-        el.addAttribute(new Attribute("hasVariantAnnotation", this.getHasVariantAnnotation()));
-        pharmGKB.appendChild(el);
-
-        // rgd
-        Element rgd = new Element("rgd");
-        root.appendChild(rgd);
-
-        el = new Element("matchingRgdId");
-        el.appendChild(Integer.toString(this.matchingRgdId));
-        rgd.appendChild(el);
-
-        // matching active genes
-        appendGeneList(rgd, genesInRgdMatchingByHgncId, "MatchingGenesInRgdHgncIds");
-        appendGeneList(rgd, genesInRgdMatchingByGeneId, "MatchingGenesInRgdByGeneIds");
-        appendGeneList(rgd, genesInRgdMatchingByEnsemblId, "MatchingGenesInRgdEnsemblIds");
-
-        el = new Element("loadingAction");
-        rgd.appendChild(el);
-        if( xdbIdForUpdate!=null ) {
-            Element el2 = new Element("update");
-            el2.addAttribute(new Attribute("acc_id", xdbIdForUpdate.getAccId()));
-            el2.addAttribute(new Attribute("creation_date", xdbIdForUpdate.getCreationDate().toString()));
-            el.appendChild(el2);
-        }
-        if( xdbIdForInsert!=null ) {
-            Element el2 = new Element("insert");
-            el2.addAttribute(new Attribute("acc_id", xdbIdForInsert.getAccId()));
-            el.appendChild(el2);
-        }
-
-        return root.toXML();
-    }
-
-    public void appendGeneList(Element el, List<Gene> geneList, String elName) {
-
-        Element el2 = new Element(elName);
-        el.appendChild(el2);
-
-        for( Gene gene: geneList ) {
-            Element el3 = new Element("gene");
-            el3.addAttribute(new Attribute("rgdId", Integer.toString(gene.getRgdId())));
-            el3.addAttribute(new Attribute("symbol", gene.getSymbol()));
-            el2.appendChild(el3);
-        }
     }
 }
