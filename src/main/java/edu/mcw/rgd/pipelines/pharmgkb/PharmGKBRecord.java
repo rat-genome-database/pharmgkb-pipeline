@@ -48,10 +48,7 @@ public class PharmGKBRecord {
     }
 
     public void setHgncId(String hgncId) {
-        if( !hgncId.isEmpty() )
-            this.hgncId = "HGNC:"+hgncId;
-        else
-            this.hgncId = hgncId;
+        this.hgncId = hgncId;
     }
 
     // remove gene descriptions to significantly reduce json footprint of this object

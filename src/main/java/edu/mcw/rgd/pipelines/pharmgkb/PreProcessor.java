@@ -83,11 +83,19 @@ public class PreProcessor {
                 continue; // there must be at least 11 columns present
             }
 
+            // add 'HGNC:' prefix if it is not there
+            String hgncId = words[2];
+            if( hgncId != null ) {
+                if( !hgncId.startsWith("HGNC:") ) {
+                    hgncId = "HGNC:" + hgncId;
+                }
+            }
+
             // parse the data
             PharmGKBRecord rec = new PharmGKBRecord();
             rec.setPharmGkbAccId(words[0]);
             rec.setGeneId(words[1]);
-            rec.setHgncId(words[2]);
+            rec.setHgncId(hgncId);
             rec.setEnsemblId(words[3]);
             rec.setGeneName(words[4]);
             rec.setGeneSymbol(words[5]);
