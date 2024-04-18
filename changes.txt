@@ -1,3 +1,6 @@
+Apr 18, 2024
+  added config option to turn on/off parallel processing
+
 Apr 17, 2024
   fixed matching by HGNC ID
 

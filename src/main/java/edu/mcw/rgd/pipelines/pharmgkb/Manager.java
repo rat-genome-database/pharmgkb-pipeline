@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author mtutaj
@@ -28,6 +29,8 @@ public class Manager {
     private String version;
     private String staleIdsDeleteThreshold;
     private String pipelineName;
+
+    private boolean multithreadQC;
 
     /**
      * run the pipeline to import PharmGKB Ids for human genes
@@ -74,7 +77,14 @@ public class Manager {
 
         List<PharmGKBRecord> incomingRecords = preProcessor.process();
 
-        incomingRecords.parallelStream().forEach( rec -> {
+        Stream<PharmGKBRecord> incomingRecordsStream;
+        if( isMultithreadQC() ) {
+            incomingRecordsStream = incomingRecords.parallelStream();
+        } else {
+            incomingRecordsStream = incomingRecords.stream();
+        }
+
+        incomingRecordsStream.forEach( rec -> {
 
             try {
                 qcProcessor.process(rec, counters);
@@ -178,5 +188,13 @@ public class Manager {
 
     public String getPipelineName() {
         return pipelineName;
+    }
+
+    public boolean isMultithreadQC() {
+        return multithreadQC;
+    }
+
+    public void setMultithreadQC(boolean multithreadQC) {
+        this.multithreadQC = multithreadQC;
     }
 }
