@@ -29,8 +29,8 @@ public class Manager {
     private String version;
     private String staleIdsDeleteThreshold;
     private String pipelineName;
-
     private boolean multithreadQC;
+    private boolean cacheQCData;
 
     /**
      * run the pipeline to import PharmGKB Ids for human genes
@@ -65,7 +65,14 @@ public class Manager {
 
         SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         log.info("   started at "+sdt.format(now));
+        log.info("   multithread qc:  "+isMultithreadQC());
+        log.info("   cache qc data:  "+isCacheQCData());
 
+        if( isCacheQCData() ) {
+            QCDataCache.getInstance().loadCache();
+        }
+
+        qcProcessor.setUseDataCache(isCacheQCData());
         qcProcessor.setDao(dao);
 
         // load number of xdb ids loaded so far by PharmGKB pipeline
@@ -196,5 +203,13 @@ public class Manager {
 
     public void setMultithreadQC(boolean multithreadQC) {
         this.multithreadQC = multithreadQC;
+    }
+
+    public boolean isCacheQCData() {
+        return cacheQCData;
+    }
+
+    public void setCacheQCData(boolean cacheQCData) {
+        this.cacheQCData = cacheQCData;
     }
 }

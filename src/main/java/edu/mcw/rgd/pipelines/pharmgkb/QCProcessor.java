@@ -19,6 +19,8 @@ public class QCProcessor {
 
     private Dao dao;
     private CounterPool counters;
+    private boolean useDataCache = false;
+
     private static final Logger log = LogManager.getLogger("incoming");
 
     public void process(PharmGKBRecord rec, CounterPool counters) throws Exception {
@@ -32,7 +34,6 @@ public class QCProcessor {
         }
 
         // generate JSON record for this gene and write it and its QC flags into a file
-        rec.removeGeneDescriptions();
         log.debug("\n"+formatAsJson(rec));
 
         if( rec.getXdbIdForUpdate()!=null ) {
@@ -70,9 +71,21 @@ public class QCProcessor {
 
     private void runMatcher(PharmGKBRecord rec) throws Exception {
 
-        rec.setGenesInRgdMatchingByHgncId( dao.getActiveGenesByXdbId(XdbId.XDB_KEY_HGNC, rec.getHgncId()) );
-        rec.setGenesInRgdMatchingByGeneId( dao.getActiveGenesByXdbId(XdbId.XDB_KEY_NCBI_GENE, rec.getGeneId()) );
-        rec.setGenesInRgdMatchingByEnsemblId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, rec.getEnsemblId()));
+        //if( useDataCache ) {
+        if( false ) { // note: caching of this kind of data slows down everything:
+            // filling up the cache simply takes up too much time
+
+            QCDataCache cache = QCDataCache.getInstance();
+            rec.setGenesInRgdMatchingByHgncId( cache.getActiveGenesByHgncId(rec.getHgncId()) );
+            rec.setGenesInRgdMatchingByGeneId( cache.getActiveGenesByNcbiGeneId(rec.getGeneId()));
+            rec.setGenesInRgdMatchingByEnsemblId( cache.getActiveGenesByEnsemblGeneId(rec.getEnsemblId()));
+
+        } else {
+            rec.setGenesInRgdMatchingByHgncId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_HGNC, rec.getHgncId()));
+            rec.setGenesInRgdMatchingByGeneId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_NCBI_GENE, rec.getGeneId()));
+            rec.setGenesInRgdMatchingByEnsemblId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, rec.getEnsemblId()));
+            rec.removeGeneDescriptions();
+        }
 
         if( rec.getGenesInRgdMatchingByHgncId().size()==1 ) {
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByHgncId().get(0).getRgdId());
@@ -116,7 +129,12 @@ public class QCProcessor {
     private void checkIfAlreadyLoaded(PharmGKBRecord rec) throws Exception {
 
         // we have one matching rgd id: cross compare PharmGKB ids between RGD and incoming data
-        List<XdbId> pharmGkbIdsInRgd = dao.getXdbIdsByRgdId(XdbId.XDB_KEY_PHARMGKB, rec.getMatchingRgdId());
+        List<XdbId> pharmGkbIdsInRgd = null;
+        if( this.useDataCache ) {
+            pharmGkbIdsInRgd = QCDataCache.getInstance().getPharmGKBId(rec.getMatchingRgdId());
+        } else {
+            pharmGkbIdsInRgd = dao.getXdbIdsByRgdId(XdbId.XDB_KEY_PHARMGKB, rec.getMatchingRgdId());
+        }
 
         XdbId incomingPharmGkb = new XdbId();
         incomingPharmGkb.setAccId(rec.getPharmGkbAccId());
@@ -149,5 +167,9 @@ public class QCProcessor {
 
     public void setDao(Dao dao) {
         this.dao = dao;
+    }
+
+    public void setUseDataCache( boolean useDataCache ) {
+        this.useDataCache = useDataCache;
     }
 }

@@ -58,7 +58,7 @@ public class PharmGKBRecord {
         removeGeneDescriptions(genesInRgdMatchingByEnsemblId);
     }
 
-    void removeGeneDescriptions( List<Gene> list ) {
+    public static void removeGeneDescriptions( List<Gene> list ) {
         if( list==null ) {
             return;
         }

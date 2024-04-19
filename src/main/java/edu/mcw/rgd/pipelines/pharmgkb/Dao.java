@@ -1,8 +1,12 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
+import edu.mcw.rgd.dao.impl.GeneDAO;
 import edu.mcw.rgd.dao.impl.XdbIdDAO;
+import edu.mcw.rgd.dao.spring.IntListQuery;
+import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.XdbId;
+import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +24,7 @@ public class Dao {
     private final Logger logInserted = LogManager.getLogger("inserted");
     private final Logger logDeleted = LogManager.getLogger("deleted");
 
+    private final GeneDAO geneDAO = new GeneDAO();
     private XdbIdDAO xdbIdDAO = new XdbIdDAO();
 
     public String getConnectionInfo() {
@@ -39,6 +44,19 @@ public class Dao {
         return xdbIdDAO.getActiveGenesByXdbId(xdbKey, accId);
     }
 
+    public List<XdbId> getXdbIds(int xdbKey, int speciesTypeKey, int objectKey) throws Exception {
+        String sql = """
+            SELECT x.*,r.species_type_key FROM rgd_ids r, rgd_acc_xdb x, genes g
+            WHERE x.rgd_id=r.rgd_id AND r.rgd_id=g.rgd_id
+             AND x.xdb_key=? AND r.species_type_key=? AND r.object_key=?
+             AND NVL(gene_type_lc,'*') NOT IN ('splice','allele') AND object_status='ACTIVE'
+            """;
+        return xdbIdDAO.executeXdbIdQuery(sql, xdbKey, speciesTypeKey, objectKey);
+    }
+
+    public List<Gene> getActiveGenes( int speciesTypeKey ) throws Exception {
+        return geneDAO.getActiveGenes(speciesTypeKey);
+    }
     /**
      * return external ids for given xdb key and rgd-id
      * @param xdbKey - external database key (like 3 for NCBIGene)
