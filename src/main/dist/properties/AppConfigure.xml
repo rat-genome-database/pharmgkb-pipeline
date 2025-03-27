@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="manager" class="edu.mcw.rgd.pipelines.pharmgkb.Manager">
-        <property name="version" value="PharmGKB Pipeline  -- build Apr 19, 2024" />
+        <property name="version" value="PharmGKB Pipeline  -- build Mar 27, 2025" />
         <property name="dao" ref="dao" />
         <property name="preProcessor" ref="preProcessor" />
         <property name="qcProcessor" ref="qcProcessor" />
