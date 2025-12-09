@@ -52,7 +52,7 @@ public class QCProcessor {
     }
 
     public String formatAsJson(PharmGKBRecord rec) throws Exception {
-        // setup a JSON object array to collect all DafAnnotation objects
+
         ObjectMapper json = new ObjectMapper();
         // do not export fields with NULL values
         json.setSerializationInclusion(JsonInclude.Include.NON_NULL);
