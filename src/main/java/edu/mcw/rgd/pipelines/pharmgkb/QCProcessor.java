@@ -2,13 +2,14 @@ package edu.mcw.rgd.pipelines.pharmgkb;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.CounterPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
 import java.util.List;
 
 /**
@@ -53,20 +54,12 @@ public class QCProcessor {
 
     public String formatAsJson(PharmGKBRecord rec) throws Exception {
 
-        ObjectMapper json = new ObjectMapper();
-        // do not export fields with NULL values
-        json.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ObjectMapper json = JsonMapper.builder()
+                .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
 
-        // dump records to a file in JSON format
-        ByteArrayOutputStream byteBuf = new ByteArrayOutputStream();
-        OutputStreamWriter out = new OutputStreamWriter(byteBuf, "UTF8");
-        BufferedWriter jsonWriter = new BufferedWriter(out);
-
-        jsonWriter.write(json.writerWithDefaultPrettyPrinter().writeValueAsString(rec));
-
-        jsonWriter.close();
-
-        return byteBuf.toString();
+        return json.writeValueAsString(rec);
     }
 
     private void runMatcher(PharmGKBRecord rec) throws Exception {
