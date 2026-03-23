@@ -29,12 +29,9 @@
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
         </RollingFile>
-        <RollingFile name="incoming" append="true" fileName="logs/incoming.log" filePattern="logs/incoming.log.%d{yyyy-MM}">
+        <File name="incoming" append="false" fileName="logs/incoming.log">
             <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1"/>
-            </Policies>
-        </RollingFile>
+        </File>
     </Appenders>
 
     <Loggers>
