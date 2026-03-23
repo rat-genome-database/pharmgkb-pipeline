@@ -1,6 +1,7 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
 import edu.mcw.rgd.process.CounterPool;
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,6 +61,9 @@ public class Manager {
 
         Date now = new Date();
 
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
+
         log.info(this.getVersion());
         log.info("   "+dao.getConnectionInfo());
 
@@ -112,6 +116,9 @@ public class Manager {
         String diffCountStr = diffCount!=0 ? "     difference: "+ plusMinusNF.format(diffCount) : "     no changes";
         log.info("TOTAL PharmGKB ID count: "+Utils.formatThousands(newXdbIdCount)+diffCountStr);
         log.info("");
+
+        memoryMonitor.stop();
+        log.info(memoryMonitor.getSummary());
 
         log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
     }

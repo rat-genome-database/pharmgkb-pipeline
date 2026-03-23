@@ -1,3 +1,7 @@
+Mar 23, 2026
+  added MemoryMonitor to log memory usage statistics at the end of each run
+  updated README.md with detailed pipeline logic documentation
+
 Mar 03, 2026
   updated jackson-databind to new library: tools.jackson.core:jackson-databind
 
