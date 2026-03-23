@@ -55,7 +55,7 @@ public class QCProcessor {
     public String formatAsJson(PharmGKBRecord rec) throws Exception {
 
         ObjectMapper json = JsonMapper.builder()
-                .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
 
