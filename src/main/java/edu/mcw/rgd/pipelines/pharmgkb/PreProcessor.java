@@ -153,7 +153,7 @@ public class PreProcessor {
 
         // same nr of columns: which column changed?
         for( int col=0; col<colsOld.length; col++ ) {
-            if( colsOld[col].equals(colsNew[col]) ) {
+            if( !colsOld[col].equals(colsNew[col]) ) {
                 String msg = "ERROR: Change in header line detected: different column "+(col+1)
                         +"; old=["+colsOld[col]+"], new=["+colsNew[col]+"]";
                 log.error(msg);

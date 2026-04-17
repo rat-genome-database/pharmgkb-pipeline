@@ -1,3 +1,6 @@
+Apr 17, 2026
+  fixed inverted condition in header validation logic
+
 Mar 23, 2026
   added MemoryMonitor to log memory usage statistics at the end of each run
   updated README.md with detailed pipeline logic documentation
