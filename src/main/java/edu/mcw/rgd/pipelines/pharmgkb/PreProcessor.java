@@ -1,6 +1,6 @@
 package edu.mcw.rgd.pipelines.pharmgkb;
 
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -120,15 +120,10 @@ public class PreProcessor {
      */
     private String downloadFile() throws Exception {
 
-        FileDownloader downloader = new FileDownloader();
+        FileDownloader2 downloader = new FileDownloader2();
         downloader.setExternalFile(getGenesFile());
         downloader.setLocalFile("data/genes.zip");
         downloader.setPrependDateStamp(true); // prefix downloaded files with the current date
-
-        // starting Jan 2017, HttpClient from apache commons had problems downloading files via HTTPS;
-        // therefore we switched to use native java URL object to download the file from PharmGKB
-        // it worked!
-        downloader.setDoNotUseHttpClient(true);
 
         return downloader.downloadNew();
     }

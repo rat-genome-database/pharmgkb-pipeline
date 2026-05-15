@@ -1,3 +1,6 @@
+May 15, 2026
+  switched to FileDownloader2; removed obsolete Apache HttpClient HTTPS workaround and unused Apache HTTP/FTP dependencies
+
 Apr 17, 2026
   fixed inverted condition in header validation logic
 
