@@ -80,8 +80,7 @@ public class Manager {
         qcProcessor.setDao(dao);
 
         // load number of xdb ids loaded so far by PharmGKB pipeline
-        Date dt = Utils.addHoursToDate(now, 1);
-        int oldXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), dt);
+        int oldXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), now);
         log.debug("count of PharmGKB IDs in the database: "+oldXdbIdCount);
 
         CounterPool counters = new CounterPool();
@@ -109,8 +108,7 @@ public class Manager {
 
         log.info(counters.dumpAlphabetically());
 
-        dt = Utils.addHoursToDate(new Date(), 1);
-        int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), dt);
+        int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), new Date());
         int diffCount = newXdbIdCount - oldXdbIdCount;
         NumberFormat plusMinusNF = new DecimalFormat(" +###,###,###; -###,###,###");
         String diffCountStr = diffCount!=0 ? "     difference: "+ plusMinusNF.format(diffCount) : "     no changes";
@@ -123,11 +121,8 @@ public class Manager {
         log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
     }
 
-    void deleteObsoleteXdbIds(java.util.Date now, int xdbIdCount, CounterPool counters) throws Exception {
+    void deleteObsoleteXdbIds(java.util.Date cutoffDate, int xdbIdCount, CounterPool counters) throws Exception {
 
-        // due to differences between app server time and db server time, it is safer to delete data
-        // that have been modified more than 1 hour ago
-        Date cutoffDate = Utils.addHoursToDate(now, -1);
         int xdbIdCountForDelete = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), cutoffDate);
         log.debug("count of PharmGKB IDs to be deleted: "+xdbIdCountForDelete);
 
@@ -150,7 +145,7 @@ public class Manager {
             log.warn("***** count of PharmGKB IDs to be deleted ("+xdbIdCountForDelete+") is more than "+getStaleIdsDeleteThreshold()+" threshold -- REVIEW needed");
         }
         else if( xdbIdCountForDelete>0 ) {
-            int count = dao.deleteXdbIdsModifiedBefore(getPipelineName(), now);
+            int count = dao.deleteXdbIdsModifiedBefore(getPipelineName(), cutoffDate);
             counters.add("XDBS_DELETED_FROM_RGD", count);
         }
     }
