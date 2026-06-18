@@ -64,33 +64,22 @@ public class QCProcessor {
 
     private void runMatcher(PharmGKBRecord rec) throws Exception {
 
-        //if( useDataCache ) {
-        if( false ) { // note: caching of this kind of data slows down everything:
-            // filling up the cache simply takes up too much time
-
-            QCDataCache cache = QCDataCache.getInstance();
-            rec.setGenesInRgdMatchingByHgncId( cache.getActiveGenesByHgncId(rec.getHgncId()) );
-            rec.setGenesInRgdMatchingByGeneId( cache.getActiveGenesByNcbiGeneId(rec.getGeneId()));
-            rec.setGenesInRgdMatchingByEnsemblId( cache.getActiveGenesByEnsemblGeneId(rec.getEnsemblId()));
-
-        } else {
-            rec.setGenesInRgdMatchingByHgncId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_HGNC, rec.getHgncId()));
-            rec.setGenesInRgdMatchingByGeneId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_NCBI_GENE, rec.getGeneId()));
-            rec.setGenesInRgdMatchingByEnsemblId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, rec.getEnsemblId()));
-            rec.removeGeneDescriptions();
-        }
+        rec.setGenesInRgdMatchingByHgncId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_HGNC, rec.getHgncId()));
+        rec.setGenesInRgdMatchingByGeneId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_NCBI_GENE, rec.getGeneId()));
+        rec.setGenesInRgdMatchingByEnsemblId(dao.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, rec.getEnsemblId()));
+        rec.removeGeneDescriptions();
 
         if( rec.getGenesInRgdMatchingByHgncId().size()==1 ) {
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByHgncId().get(0).getRgdId());
-            counters.increment("MATCH_BY_HGNC_ID");
+            counters.increment("MATCH_TIER1_BY_HGNC_ID");
         }
         else if( rec.getGenesInRgdMatchingByGeneId().size()==1 ) {
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByGeneId().get(0).getRgdId());
-            counters.increment("MATCH_BY_GENE_ID");
+            counters.increment("MATCH_TIER2_BY_GENE_ID");
         }
         else if( rec.getGenesInRgdMatchingByEnsemblId().size()==1 ) {
             rec.setMatchingRgdId(rec.getGenesInRgdMatchingByEnsemblId().get(0).getRgdId());
-            counters.increment("MATCH_BY_ENSEMBL_ID");
+            counters.increment("MATCH_TIER3_BY_ENSEMBL_ID");
         }
         else {
             // there is no single match by either HGNC, NCBI Gene, or Ensembl id
@@ -112,7 +101,7 @@ public class QCProcessor {
             }
             else {
                 // there are no matches at all
-                counters.increment("MATCH_NOT_BY_HGNC_NCBIGENE_ENSEMBL");
+                counters.increment("MATCH_TIER4_NO_MATCH");
             }
 
             // no more QC if multi matches or no matches at all
@@ -135,9 +124,9 @@ public class QCProcessor {
         incomingPharmGkb.setRgdId(rec.getMatchingRgdId());
         incomingPharmGkb.setSrcPipeline("PharmGKB");
 
-        if( pharmGkbIdsInRgd.contains(incomingPharmGkb) ) {
+        int index = pharmGkbIdsInRgd.indexOf(incomingPharmGkb);
+        if( index >= 0 ) {
 
-            int index = pharmGkbIdsInRgd.indexOf(incomingPharmGkb);
             rec.setXdbIdForUpdate(pharmGkbIdsInRgd.get(index));
 
             counters.increment("XDBS_ALREADY_IN_RGD");

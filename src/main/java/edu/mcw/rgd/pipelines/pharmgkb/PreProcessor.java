@@ -41,8 +41,8 @@ public class PreProcessor {
         List<PharmGKBRecord> result = new ArrayList<>();
 
         // download the file to a local folder
-        log.info("  downloading file "+genesFile);
         String fileName = downloadFile();
+        log.info("downloaded file "+genesFile);
 
         // unzip the file: process only files ending with '*.tsv' -- 'genes.tsv'
         try (ZipFile zipFile = new ZipFile(fileName)){

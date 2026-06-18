@@ -1,3 +1,8 @@
+Jun 18, 2026
+  summary email: counters dumped alphabetically, one per line with 2-space indent
+  renamed match counters to MATCH_TIER1..TIER4 naming
+  removed dead QC data-cache code and minor cleanups; updated dependencies
+
 May 22, 2026
   removed obsolete 1-hour clock-skew buffer from stale xdb id deletion logic
   updated dependencies

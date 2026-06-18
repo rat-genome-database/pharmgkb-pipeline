@@ -12,6 +12,7 @@ import org.springframework.core.io.FileSystemResource;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
@@ -106,7 +107,12 @@ public class Manager {
 
         deleteObsoleteXdbIds(now, oldXdbIdCount, counters);
 
-        log.info(counters.dumpAlphabetically());
+        // dump counters alphabetically, one per line, indented by two spaces (for the summary email)
+        List<String> counterNames = Collections.list(counters.getCounterNames());
+        Collections.sort(counterNames);
+        for( String counterName: counterNames ) {
+            log.info("  "+counterName+" : "+Utils.formatThousands(counters.get(counterName)));
+        }
 
         int newXdbIdCount = dao.getCountOfXdbIdsModifiedBefore(getPipelineName(), new Date());
         int diffCount = newXdbIdCount - oldXdbIdCount;
@@ -118,7 +124,7 @@ public class Manager {
         memoryMonitor.stop();
         log.info(memoryMonitor.getSummary());
 
-        log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis()));
+        log.info("--SUCCESS-- elapsed "+ Utils.formatElapsedTime(now.getTime(), System.currentTimeMillis())+"\n");
     }
 
     void deleteObsoleteXdbIds(java.util.Date cutoffDate, int xdbIdCount, CounterPool counters) throws Exception {
