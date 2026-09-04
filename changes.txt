@@ -1,3 +1,6 @@
+Sep 3, 2026
+  fixed genes.zip download: api.pharmgkb.org is gone (NXDOMAIN), switched to s3.pgkb.org; updated dependencies
+
 Jun 18, 2026
   summary email: counters dumped alphabetically, one per line with 2-space indent
   renamed match counters to MATCH_TIER1..TIER4 naming
