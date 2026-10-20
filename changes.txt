@@ -1,3 +1,6 @@
+Oct 20, 2026
+  migrated to postgres; updated dependencies
+
 Sep 3, 2026
   fixed genes.zip download: api.pharmgkb.org is gone (NXDOMAIN), switched to s3.pgkb.org; updated dependencies
 

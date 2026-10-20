@@ -46,7 +46,7 @@ public class Dao {
             SELECT x.*,r.species_type_key FROM rgd_ids r, rgd_acc_xdb x, genes g
             WHERE x.rgd_id=r.rgd_id AND r.rgd_id=g.rgd_id
              AND x.xdb_key=? AND r.species_type_key=? AND r.object_key=?
-             AND NVL(gene_type_lc,'*') NOT IN ('splice','allele') AND object_status='ACTIVE'
+             AND COALESCE(gene_type_lc,'*') NOT IN ('splice','allele') AND object_status='ACTIVE'
             """;
         return xdbIdDAO.executeXdbIdQuery(sql, xdbKey, speciesTypeKey, objectKey);
     }
