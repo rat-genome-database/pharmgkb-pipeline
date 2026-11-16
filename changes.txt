@@ -1,3 +1,6 @@
+Nov 16, 2026
+  run.sh: stderr captured in run.log; summary email reports FAILED when the pipeline fails; updated dependencies
+
 Sep 3, 2026
   fixed genes.zip download: api.pharmgkb.org is gone (NXDOMAIN), switched to s3.pgkb.org; updated dependencies
 
