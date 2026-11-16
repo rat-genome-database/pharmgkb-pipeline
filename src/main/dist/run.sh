@@ -10,11 +10,16 @@ if [ "$SERVER" = "REED" ]; then
   EMAIL_LIST="rgd.devops@mcw.edu jrsmith@mcw.edu"
 fi
 
-# run java app by calling gradle-generated wrapper script
+# pipefail: exit status of the pipe is the java exit status, not tee's
+set -o pipefail
+
 cd $APPDIR
 java -Dspring.config=$APPDIR/../properties/default_db2.xml \
     -Dlog4j.configurationFile=file://$APPDIR/properties/log4j2.xml \
-    -jar lib/$APPNAME.jar "$@" | tee run.log 2>&1
+    -jar lib/$APPNAME.jar "$@" 2>&1 | tee run.log
 
-mailx -s "[$SERVER] pharmgkb-pipeline OK!" $EMAIL_LIST < $APPDIR/logs/summary.log
-
+if [ $? -eq 0 ]; then
+  mailx -s "[$SERVER] pharmgkb-pipeline OK!" $EMAIL_LIST < $APPDIR/logs/summary.log
+else
+  mailx -s "[$SERVER] pharmgkb-pipeline FAILED!" $EMAIL_LIST < $APPDIR/run.log
+fi
